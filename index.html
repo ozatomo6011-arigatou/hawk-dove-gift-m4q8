@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>タカ派ハト派ゲーム</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap">
+<style>
+  :root{
+    --bg:#fbe3e8; --card:#fffdf8; --ink:#2b2a28; --sub:#6d675d; --line:#e4dccb;
+    --hawk:#c8553d; --dove:#3d7ea6; --ok:#2e8b57; --ng:#c0392b; --accent:#e0a040;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Meiryo","Hiragino Sans",sans-serif;line-height:1.7}
+  .wrap{max-width:560px;margin:0 auto;padding:10px 16px}
+  h1{font-size:19px;margin:4px 0 0}
+  .note{font-size:11px;color:var(--sub);margin:0 0 8px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  .btn{display:block;width:100%;border:0;border-radius:12px;padding:12px 10px;font-size:19px;font-weight:bold;color:#fff;cursor:pointer;font-family:inherit}
+  .btn.start{background:#3f9d7a;color:#fff}
+  .btn.hawk{background:var(--hawk)} .btn.dove{background:var(--dove)}
+  .btn.next{background:#444}
+  .btn.ghost{background:transparent;color:var(--sub);border:1px solid var(--line);font-size:13px;padding:8px;font-weight:normal;margin-top:8px}
+  .row{display:flex;gap:10px}
+  .row .btn{flex:1}
+  .prog{font-size:15px;color:var(--sub);display:flex;justify-content:space-between;margin-bottom:4px}
+  .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:8px}
+  .bar i{display:block;height:100%;background:var(--accent)}
+  .ind{font-size:16px;font-weight:bold;margin:0 0 6px}
+  table{width:100%;border-collapse:collapse;text-align:center}
+  th{font-size:14px;color:var(--sub);font-weight:normal;padding:2px}
+  td{font-size:24px;font-weight:bold;padding:6px 2px;border-top:1px solid var(--line)}
+  td.res{color:var(--ink);background:#fff3d6;border-radius:6px}
+  .quote{font-size:19px;border-left:4px solid var(--accent);padding:6px 12px;margin:8px 0;background:#fff8e8}
+  .who{font-size:12px;color:var(--sub)}
+  .ask{margin:0 0 8px;font-size:16px}
+  .verdict{font-size:21px;font-weight:bold;margin:0 0 6px}
+  .verdict.ok{color:var(--ok)} .verdict.ng{color:var(--ng)}
+  .why{margin:6px 0 10px;font-size:16px}
+  ul.imp{margin:6px 0 12px;padding-left:0;list-style:none;font-size:15px}
+  ul.imp li{margin:4px 0}
+  .big{font-size:40px;font-weight:bold;text-align:center;margin:4px 0}
+  .rank{text-align:center;font-size:18px;font-weight:bold;color:var(--hawk);margin-bottom:10px}
+  .small{font-size:13px;color:var(--sub)}
+  .weak span{display:inline-block;background:#fde7e2;border-radius:8px;padding:2px 8px;margin:2px 4px 2px 0;font-size:13px}
+  .hidden{display:none}
+  .chalk{font-family:"Yusei Magic","Klee One","Meiryo",sans-serif}
+  .board{background:#2f5b47;border:9px solid #9a6b3a;border-radius:8px;color:#f5f5ef;padding:10px 12px 8px;margin-bottom:8px;box-shadow:inset 0 0 36px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.2)}
+  .board .ind{color:#fff;font-size:21px;border-bottom:2px dashed rgba(255,255,255,.35);padding-bottom:6px}
+  .board th{color:#cfe3d6}
+  .board td{border-top:1px dashed rgba(255,255,255,.3)}
+  .board td.res{color:#ffe27a;background:rgba(255,255,255,.1)}
+  .board .quote{background:rgba(255,255,255,.08);border-left-color:#ffe27a;color:#fff}
+  .board .who{color:#cfe3d6}
+  .board .about-btn{color:#e8f2ea;border-color:rgba(255,255,255,.5)}
+  .board .about{background:rgba(255,255,255,.14);color:#fff}
+  .stage{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .girl{width:40%;max-width:190px;flex:none;filter:drop-shadow(0 4px 6px rgba(0,0,0,.18))}
+  .girl.pop{animation:pop .45s ease-out}
+  @keyframes pop{0%{transform:scale(.85) translateY(10px)}60%{transform:scale(1.07)}100%{transform:scale(1)}}
+  .side{flex:1}
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .say{background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 12px;font-size:16px;font-weight:bold;position:relative}
+  .say.ok{border-color:var(--ok);color:var(--ok)} .say.ng{border-color:var(--ng);color:var(--ng)}
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:3px solid var(--accent);border-radius:16px 16px 0 0;box-shadow:0 -6px 20px rgba(0,0,0,.18);max-height:62vh;display:flex;flex-direction:column;animation:slideup .28s ease-out;padding-bottom:env(safe-area-inset-bottom,0px)}
+  .sheet.hidden{display:none}
+  .sheet-body{padding:12px 16px 4px;overflow-y:auto}
+  .sheet-btns{display:flex;gap:8px;padding:8px 16px 12px}
+  .sheet-btns .btn{padding:13px;font-size:17px}
+  .sheet-btns .next{flex:1}
+  .btn.ghost2{background:#efe7d6;color:var(--ink);flex:0 0 38%}
+  @keyframes slideup{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+  body.sheet-open .wrap{padding-bottom:300px}
+  .stage.hidden{display:none}
+  .sheet-top{display:flex;gap:10px;align-items:flex-start}
+  .sheet-top>div{flex:1;min-width:0}
+  .sheet-girl{width:112px;flex:none;animation:pop .45s ease-out}
+  .btn.hawk,.btn.dove{display:flex;align-items:center;gap:10px;text-align:left}
+  .btn.hawk{background:#ffe8d6;color:#963723;border:4px solid #d66e50}
+  .btn.dove{background:#dbecf8;color:#23557d;border:4px solid #5a96c8}
+  .dv{font-size:1.7em;line-height:1;vertical-align:-0.18em}
+  .emo{font-size:56px;line-height:1;flex:none;width:58px;display:flex;align-items:center;justify-content:center}
+  .emo img{width:58px;height:auto;display:block}
+  .lbl small{font-size:13px;font-weight:normal}
+  .inl{height:1.4em;vertical-align:-0.35em}
+  #startBtn{position:sticky;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:5;box-shadow:0 4px 12px rgba(0,0,0,.22)}
+  .title-girl{display:block;width:100px;margin:0 auto 8px}
+  .about-btn{background:none;border:1px solid var(--line);border-radius:16px;padding:5px 14px;font-size:15px;color:var(--sub);cursor:pointer;font-family:inherit;margin:0 0 6px}
+  .about{background:#eef5fa;border-radius:10px;padding:10px 12px;font-size:16px;margin:0 0 10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="hdr1"><img class="inl" src="hawk_dove_assets/taka.png" alt=""> タカ派 or ハト派？ <span class="dv">🕊️</span></h1>
+  <p class="note" id="hdr2">※ 数字はすべて練習用の架空データです（実際の発表値ではありません）</p>
+
+  <!-- タイトル -->
+  <section id="title" class="card">
+    <img class="title-girl" src="hawk_dove_assets/girl_normal.png" alt="">
+    <p>経済指標の結果を見て、<b>中央銀行（FRB・日銀）の立場</b>になって考えます。<br>
+    「予想より強い／高い」結果が出たら、金利はどちらに動きたい？</p>
+    <p class="small"><img class="inl" src="hawk_dove_assets/taka.png" alt=""> タカ派＝金利を上げたい（利上げ寄り）<br><span class="dv">🕊️</span> ハト派＝金利を下げたい（利下げ寄り）</p>
+    <button class="btn start" id="startBtn">10問スタート</button>
+    <div id="stats" class="small" style="margin-top:12px"></div>
+    <button class="btn ghost" id="resetBtn">記録をリセット</button>
+    <p class="small" style="margin:12px 0 0">※ 学習用のゲームです。出てくる数字や発言の例文は架空で、投資の助言ではありません。指標の見方は一般的な目安で、例外もあります。投資の判断はご自身の責任でお願いします。</p>
+  </section>
+
+  <!-- 出題 -->
+  <section id="play" class="hidden">
+    <div class="prog"><span id="qNo"></span><span id="scoreNow"></span></div>
+    <div class="bar"><i id="barIn" style="width:0"></i></div>
+    <div class="board chalk">
+      <p class="ind" id="qTitle"></p>
+      <button class="about-btn chalk" id="aboutBtn">❓ この指標って何？</button>
+      <div class="about hidden" id="aboutBox"></div>
+      <div id="qBody"></div>
+    </div>
+    <div class="stage" id="stage">
+      <img class="girl" id="girl" src="hawk_dove_assets/girl_normal.png" alt="">
+      <div class="side">
+        <p class="ask" id="ask" style="margin-top:0">あなたが中央銀行なら、どちら派？</p>
+        <div class="stack" id="choices">
+          <button class="btn hawk" data-a="hawk"><span class="emo"><img src="hawk_dove_assets/taka.png" alt=""></span><span class="lbl">タカ派<br><small>利上げ寄り</small></span></button>
+          <button class="btn dove" data-a="dove"><span class="emo">🕊️</span><span class="lbl">ハト派<br><small>利下げ寄り</small></span></button>
+        </div>
+        <div class="say hidden" id="say"></div>
+      </div>
+    </div>
+    <div class="sheet hidden" id="fb">
+      <div class="sheet-body">
+        <div class="sheet-top">
+          <img class="sheet-girl" id="sheetGirl" src="hawk_dove_assets/girl_maru.png" alt="">
+          <div><p class="verdict" id="fbVerdict"></p><p class="why" id="fbWhy"></p></div>
+        </div>
+        <div class="hidden" id="impBox"><p class="small" style="margin:0">この結果が与えそうな影響</p><ul class="imp" id="fbImp"></ul></div>
+      </div>
+      <div class="sheet-btns">
+        <button class="btn ghost2" id="impBtn">📊 影響を見る</button>
+        <button class="btn next" id="nextBtn">次の問題へ</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 結果 -->
+  <section id="end" class="card hidden">
+    <img class="title-girl" id="endGirl" src="hawk_dove_assets/girl_normal.png" alt="">
+    <div class="big" id="endScore"></div>
+    <div class="rank" id="endRank"></div>
+    <div id="endWeak" class="weak"></div>
+    <button class="btn start" id="againBtn" style="margin-top:12px">もう一度</button>
+    <button class="btn ghost2" id="quitBtn" style="margin-top:8px">おわる</button>
+    <p class="small" style="margin:12px 0 0">※ 学習用のゲームです。数字や発言は架空で、投資の助言ではありません。</p>
+  </section>
+</div>
+
+<script>
+// ---------- データ ----------
+// up: 予想より「高い/強い」結果がタカ派ならtrue
+const IND=[
+ {id:'nfp',grp:'雇用統計',name:'非農業部門雇用者数（前月差）',reg:'US',unit:'千人',dec:0,min:120,max:250,drift:15,sMin:30,sMax:80,up:true,signed:true,
+  hi:'雇用者数が予想より多い＝雇用が強く、景気は好調。金利を下げる必要が薄れるのでタカ派寄り',
+  lo:'雇用者数が予想より少ない＝雇用の勢いが鈍り、景気に不安。利下げで支えたいのでハト派寄り'},
+ {id:'unemp',grp:'失業率',name:'失業率',reg:'US',unit:'%',dec:1,min:3.8,max:4.6,drift:0.1,sMin:0.1,sMax:0.3,up:false,
+  hi:'失業率が予想より高い＝雇用が弱っている。景気を支えるため利下げ寄り（ハト派）',
+  lo:'失業率が予想より低い＝雇用が強く景気は堅調。利下げの必要が薄れる（タカ派）'},
+ {id:'wage',grp:'雇用統計',name:'平均時給（前月比）',reg:'US',unit:'%',dec:1,min:0.2,max:0.4,drift:0.1,sMin:0.1,sMax:0.2,up:true,
+  hi:'賃金の伸びが予想より高い＝人件費が上がり、物価も上がりやすい。インフレ警戒でタカ派',
+  lo:'賃金の伸びが予想より低い＝物価上昇の圧力が弱い。利下げしやすくハト派'},
+ {id:'cpi',grp:'CPI',name:'消費者物価指数 CPI（前年比）',reg:'US',unit:'%',dec:1,min:2.5,max:3.8,drift:0.1,sMin:0.1,sMax:0.4,up:true,
+  hi:'物価が予想より高い＝インフレが収まっていない。金利を上げて抑えたいのでタカ派',
+  lo:'物価が予想より低い＝インフレが落ち着いてきた。利下げしやすくハト派'},
+ {id:'ppi',grp:'PPI',name:'生産者物価指数 PPI（前年比）',reg:'US',unit:'%',dec:1,min:2.0,max:3.5,drift:0.2,sMin:0.2,sMax:0.6,up:true,
+  hi:'企業の仕入れ価格が予想より高い＝やがて消費者物価（CPI）にも波及しやすい。インフレ警戒でタカ派',
+  lo:'企業の仕入れ価格が予想より低い＝コスト圧力が弱く、CPIも落ち着きやすい。ハト派'},
+ {id:'pce',grp:'PCE',name:'PCEコアデフレーター（前年比）',reg:'US',unit:'%',dec:1,min:2.5,max:3.3,drift:0.1,sMin:0.1,sMax:0.3,up:true,
+  hi:'FRBが重視する物価指標が予想より高い＝インフレ警戒でタカ派',
+  lo:'FRBが重視する物価指標が予想より低い＝インフレ鎮静でハト派'},
+ {id:'gdp',grp:'GDP',name:'実質GDP（前期比年率）',reg:'US',unit:'%',dec:1,min:1.0,max:3.5,drift:0.3,sMin:0.5,sMax:1.2,up:true,
+  hi:'景気が予想より強い＝金利を下げる理由が薄れる。タカ派',
+  lo:'景気が予想より弱い＝景気を支えるため利下げ寄り。ハト派'},
+ {id:'retail',grp:'小売売上高',name:'小売売上高（前月比）',reg:'US',unit:'%',dec:1,min:0.0,max:0.8,drift:0.2,sMin:0.3,sMax:0.8,up:true,signed:true,
+  hi:'消費が予想より強い＝景気を引っ張る個人消費が好調。タカ派',
+  lo:'消費が予想より弱い＝景気減速の心配。ハト派'},
+ {id:'ism_m',grp:'ISM製造業',name:'ISM製造業景況指数（50が境目）',reg:'US',unit:'',dec:1,min:47,max:54,drift:1,sMin:1.2,sMax:2.8,up:true,
+  hi:'景況感が予想より良い（50超は景気拡大）＝景気は強い。タカ派',
+  lo:'景況感が予想より悪い（50割れは景気縮小）＝景気に不安。ハト派'},
+ {id:'ism_s',grp:'ISM非製造業',name:'ISM非製造業景況指数（50が境目）',reg:'US',unit:'',dec:1,min:49,max:56,drift:1,sMin:1.2,sMax:2.8,up:true,
+  hi:'サービス業（米景気の大部分）の景況感が予想より良い＝景気は強い。タカ派',
+  lo:'サービス業の景況感が予想より悪い＝景気に不安。ハト派'},
+ {id:'home',grp:'住宅関連',name:'新築住宅販売件数',reg:'US',unit:'千件',dec:0,min:620,max:720,drift:20,sMin:20,sMax:50,up:true,
+  hi:'住宅は金利に敏感。販売が予想より強い＝高い金利でも景気は底堅い。タカ派',
+  lo:'住宅販売が予想より弱い＝金利負担が景気に重くのしかかる。利下げ寄りでハト派'},
+ {id:'eci',grp:'賃金',name:'雇用コスト指数（前期比）',reg:'US',unit:'%',dec:1,min:0.7,max:1.1,drift:0.1,sMin:0.1,sMax:0.3,up:true,
+  hi:'人件費が予想より増えている＝物価上昇の圧力。インフレ警戒でタカ派',
+  lo:'人件費の伸びが予想より小さい＝物価上昇の圧力が弱い。ハト派'},
+ {id:'jp_unemp',grp:'日本 失業率',name:'完全失業率',reg:'JP',unit:'%',dec:1,min:2.3,max:2.8,drift:0.1,sMin:0.1,sMax:0.2,up:false,
+  hi:'失業率が予想より高い＝日本の雇用が弱含み。日銀は利上げしにくく、ハト派',
+  lo:'失業率が予想より低い＝人手不足が続き、賃金が上がりやすい。利上げしやすくタカ派'},
+ {id:'jp_ip',grp:'日本 鉱工業生産',name:'鉱工業生産（前月比）',reg:'JP',unit:'%',dec:1,min:-1.5,max:2.0,drift:0.4,sMin:0.5,sMax:1.4,up:true,signed:true,
+  hi:'生産が予想より強い＝企業活動が活発で景気は堅調。タカ派',
+  lo:'生産が予想より弱い＝景気に陰り。利上げは慎重になりハト派'},
+ {id:'jp_cpi',grp:'日本 全国CPI',name:'全国CPI・コア（前年比）',reg:'JP',unit:'%',dec:1,min:2.0,max:3.2,drift:0.1,sMin:0.1,sMax:0.4,up:true,
+  hi:'物価が予想より高い＝日銀の目標（2%）を上回る動きが続く。利上げ寄りでタカ派',
+  lo:'物価が予想より低い＝物価の勢いが弱く、利上げを急ぐ理由が薄れる。ハト派'},
+ {id:'tankan',grp:'日銀短観',name:'日銀短観（大企業製造業DI）',reg:'JP',unit:'',dec:0,min:10,max:18,drift:1,sMin:2,sMax:5,up:true,signed:true,
+  hi:'企業の景況感が予想より良い＝景気は強く、利上げしやすい。タカ派',
+  lo:'企業の景況感が予想より悪い＝景気に不安があり、利上げは慎重に。ハト派'}
+];
+const POLICY={id:'policy',grp:'政策金利・発言',name:'政策金利・要人発言'};
+const STATEMENTS=[
+ {reg:'US',who:'FRB議長',text:'インフレ率は目標を上回っており、追加の利上げも排除しない',hawk:true,why:'物価高を抑えるため、利上げも辞さないという姿勢。タカ派の発言です'},
+ {reg:'US',who:'FRB議長',text:'雇用の減速が目立ってきた。リスクのバランスを見て、利下げを検討する',hawk:false,why:'雇用の弱さを見て、金利を下げる方向を示した。ハト派の発言です'},
+ {reg:'US',who:'FRB高官',text:'物価の下げ止まりが気がかり。金利は当面、高い水準を維持すべきだ',hawk:true,why:'高い金利を長く続けるという主張。タカ派の発言です'},
+ {reg:'US',who:'FRB高官',text:'景気の下振れリスクに備え、金融緩和の余地を残しておきたい',hawk:false,why:'景気を支えるため、利下げの余地を残すという姿勢。ハト派の発言です'},
+ {reg:'JP',who:'日銀総裁',text:'賃金と物価の好循環が確認できれば、利上げを進めていく',hawk:true,why:'条件が整えば利上げを進めるという姿勢。タカ派の発言です'},
+ {reg:'JP',who:'日銀総裁',text:'海外経済の不透明感が強く、当面は現在の緩和的な環境を維持する',hawk:false,why:'利上げを急がず、緩和を続けるという姿勢。ハト派の発言です'},
+ {reg:'JP',who:'日銀審議委員',text:'物価の上振れリスクが高まっており、早めの利上げが必要だ',hawk:true,why:'利上げを前倒しすべきという主張。タカ派の発言です'},
+ {reg:'JP',who:'日銀審議委員',text:'個人消費の弱さを見極める必要があり、利上げは急がない',hawk:false,why:'消費の弱さを理由に利上げを急がない姿勢。ハト派の発言です'}
+];
+
+// ---------- 「この指標って何？」の説明 ----------
+const ABOUT={
+ nfp:'アメリカで、農業以外の仕事に就いている人が、前の月から何人増えた（減った）かを表します。毎月第1金曜に発表される「雇用統計」の目玉で、相場が最も動きやすい指標の1つです。単位は千人（+150千人＝15万人増）。多いほど景気が強いと見られます。',
+ unemp:'働きたいのに仕事がない人の割合です。雇用統計と同時に発表されます。低いほど雇用が強く、高いほど雇用が弱いことを意味します。',
+ wage:'働く人の平均の時給が、前の月から何%増えたかです。雇用統計と同時に出ます。賃金が上がると企業は値上げをしやすく、物価も上がりやすいため、FRBは物価の先行きを見る材料にしています。',
+ cpi:'消費者物価指数（Consumer Price Index）。家計が買うモノ・サービスの値段が、1年前と比べて何%上がったかを表します。物価の代表的な指標で、毎月発表されます。FRBの目標は物価上昇率2%です。',
+ ppi:'生産者物価指数（Producer Price Index）。企業どうしが取引するときの値段（原材料、部品、出荷価格など）が、1年前と比べて何%上がったかを表します。企業の仕入れ値が上がると、やがてお店で売る商品の値上げにつながるため、消費者が払う物価（CPI）より先に動く指標として見られます。',
+ pce:'家計が買っているモノ・サービスの値段が、1年前より何%上がったかを表す物価指標です（コア＝値動きの大きい食品とエネルギーを除いたもの）。CPIより範囲が広い物価指標です。FRBの物価目標（2%）は、PCE（コアではなく全体）で決められています。コアは、物価の基調を見る目安として特に注目されます。',
+ gdp:'国内総生産。国全体で生み出されたモノ・サービスの合計で、景気の大きさを表します。「前期比年率」は、3か月前から何%成長したかを、1年のペースに直した数字です。速報→改定→確報と複数回出ます。',
+ retail:'お店（ネット通販を含む）での売上が、前の月から何%増えたかです。アメリカ景気の約7割を占める個人消費の強さがすぐに分かります。',
+ ism_m:'アメリカの工場（製造業）の会社に「最近、景気はどう？注文は増えた？」とアンケートをして、答えを0〜100の点数にしたものです（全米供給管理協会＝ISMが毎月発表）。50が境目で、50より上は「良くなった」と答えた会社のほうが多く、景気は拡大。50より下は「悪くなった」が多く、景気は縮小と見られます。月初に早く出るので、景気の先行きをつかむ材料になります。',
+ ism_s:'アメリカのサービス業（小売、金融、医療、飲食、運輸など）の会社に「最近、景気はどう？」とアンケートをして、答えを0〜100の点数にしたものです。見方は50が境目で、50より上は「良くなった」と答えた会社のほうが多く、景気は拡大。50より下は「悪くなった」が多く、景気は縮小と見られます。アメリカ経済の大部分はサービス業なので、景気全体に近い動きを表します。',
+ home:'新築の一戸建て住宅が、1か月でどれだけ売れたか（年率換算の件数）です。住宅は金利の影響を受けやすく、高い金利が景気にどれだけ効いているかが分かります。',
+ eci:'企業が人を雇うためにかかるコスト（給料＋福利厚生）が、前の四半期から何%増えたかです。人件費が上がると物価も上がりやすいと見られるため、賃金の動きを見る指標として使われます。',
+ jp_unemp:'日本で働く意思があるのに仕事がない人の割合です。日本は2〜3%台と低く、さらに低くなるほど人手不足で賃金が上がりやすくなります。',
+ jp_ip:'工場などの生産量の動きを、前の月と比べた指数です。企業の生産活動の強さが分かり、景気の様子を見る材料になります。',
+ jp_cpi:'日本全国の消費者物価です。「コア」は生鮮食品を除いたものです。日銀は物価上昇率2%を目標にしており、利上げを考えるときの中心的な指標です。',
+ tankan:'日本銀行が、全国の企業に景気の感じ方を質問した調査です。「良い」と答えた企業の割合から「悪い」と答えた割合を引いたものがDI（プラスなら「良い」が多い）。年4回発表されます。',
+ policy:'中央銀行（米国はFRB、日本は日銀）の要人は、会見や講演で今後の金利について話します。「物価に警戒」「利上げ」と言えばタカ派、「景気に配慮」「利下げ」と言えばハト派です。発表される指標より、発言のほうが相場を動かすこともあります。'
+};
+
+// ---------- 影響の文章 ----------
+function impacts(reg,hawk){
+  if(reg==='US'&&hawk) return [
+    '💵 為替：米金利が上がりやすく、ドル高・円安の方向',
+    '📈 株：景気の強さは好材料。ただ金利上昇が重荷になりやすい（特に成長株・ハイテク）',
+    '🏢 企業：円安は輸出企業に追い風、輸入コストが増える企業には逆風',
+    '🏠 暮らし：住宅ローンなど借入の金利が上がりやすい'];
+  if(reg==='US') return [
+    '💵 為替：米金利が下がりやすく、ドル安・円高の方向',
+    '📈 株：利下げ期待は支えになる。ただ景気悪化の心配が出ると重荷にも',
+    '🏢 企業：円高は輸出企業に逆風、輸入コストが減る企業には追い風',
+    '🏠 暮らし：住宅ローンなど借入の金利が下がりやすい'];
+  if(hawk) return [
+    '💴 為替：日本の金利が上がりやすく、円高の方向',
+    '📈 株：円高と金利上昇は日本株の重荷になりやすい（銀行株は追い風になりやすい）',
+    '🏢 企業：円高は輸出企業に逆風、輸入コストが減る企業には追い風',
+    '🏠 暮らし：変動型の住宅ローン金利が上がりやすい。預金金利は上がりやすい'];
+  return [
+    '💴 為替：金利が低いまま続きやすく、円安の方向',
+    '📈 株：円安は輸出企業の株に追い風。緩和の継続も下支えに',
+    '🏢 企業：円安は輸出企業に追い風、輸入コストが増える企業には逆風',
+    '🏠 暮らし：ローン金利は低いまま。輸入品の値上がりは続きやすい'];
+}
+
+// ---------- ユーティリティ ----------
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const rd=(v,d)=>{const m=Math.pow(10,d);return Math.round(v*m)/m};
+const fmt=(v,ind)=>(ind.signed&&v>0?'+':'')+v.toFixed(ind.dec)+ind.unit;
+const store={
+  get(k,def){try{const v=localStorage.getItem(k);return v?JSON.parse(v):def}catch(e){return def}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+
+// 苦手を重く、得意を軽くして、重複なしで10個選ぶ
+function pickIds(){
+  const stats=store.get('hdStats',{});
+  const pool=IND.concat([POLICY]).map(i=>{
+    const s=stats[i.id]||{r:0,w:0};
+    return {i,w:Math.max(0.5,1+s.w*1.5-s.r*0.2)};
+  });
+  const out=[];
+  while(out.length<10&&pool.length){
+    const sum=pool.reduce((a,b)=>a+b.w,0);
+    let x=Math.random()*sum,k=0;
+    for(;k<pool.length-1;k++){x-=pool[k].w;if(x<=0)break}
+    out.push(pool.splice(k,1)[0].i);
+  }
+  return out;
+}
+
+function makeQ(ind){
+  if(ind.id==='policy'){
+    const s=STATEMENTS[Math.floor(Math.random()*STATEMENTS.length)];
+    return {ind,policy:s,hawk:s.hawk,reg:s.reg,why:s.why};
+  }
+  const prev=rd(rnd(ind.min,ind.max),ind.dec);
+  const fc=rd(prev+rnd(-ind.drift,ind.drift),ind.dec);
+  const sur=rd(rnd(ind.sMin,ind.sMax),ind.dec);
+  const res=rd(fc+(Math.random()<0.5?-1:1)*sur,ind.dec);
+  const higher=res>fc;
+  const hawk=ind.up?higher:!higher;
+  return {ind,prev,fc,res,hawk,reg:ind.reg,why:higher?ind.hi:ind.lo};
+}
+
+// ---------- 画面制御 ----------
+let qs=[],qi=0,score=0,wrongs=[];
+function show(id){['title','play','end'].forEach(s=>$(s).classList.toggle('hidden',s!==id));
+  ['hdr1','hdr2'].forEach(h=>$(h).classList.toggle('hidden',id==='play'));document.body.classList.remove('sheet-open')}
+
+function renderTitle(){
+  const best=store.get('hdBest',0),tot=store.get('hdTotal',{r:0,n:0});
+  const stats=store.get('hdStats',{});
+  const weak=IND.concat([POLICY]).filter(i=>stats[i.id]&&stats[i.id].w>stats[i.id].r)
+    .sort((a,b)=>(stats[b.id].w-stats[b.id].r)-(stats[a.id].w-stats[a.id].r)).slice(0,3);
+  let h='ベストスコア：'+best+' / 10';
+  if(tot.n)h+='　通算正解率：'+Math.round(tot.r/tot.n*100)+'%（'+tot.n+'問）';
+  if(weak.length)h+='<br>苦手な指標：'+weak.map(w=>w.grp).join('、');
+  $('stats').innerHTML=h;
+  show('title');
+}
+
+function start(){
+  qs=pickIds().map(makeQ);qi=0;score=0;wrongs=[];
+  show('play');renderQ();
+}
+
+function renderQ(){
+  const q=qs[qi];
+  $('qNo').textContent='第 '+(qi+1)+' 問 / 10　※架空データ';
+  document.body.classList.remove('sheet-open');$('impBox').classList.add('hidden');$('impBtn').textContent='📊 影響を見る';
+  $('scoreNow').textContent='正解 '+score;
+  $('barIn').style.width=(qi/10*100)+'%';
+  const flag=q.reg==='US'?'🇺🇸':'🇯🇵';
+  if(q.policy){
+    $('qTitle').textContent=flag+' '+(q.reg==='US'?'米国':'日本')+'：要人発言';
+    $('qBody').innerHTML='<div class="quote">「'+q.policy.text+'」<div class="who">― '+q.policy.who+'</div></div>';
+  }else{
+    $('qTitle').textContent=flag+' '+q.ind.name;
+    $('qBody').innerHTML='<table><tr><th>前回</th><th>予想</th><th>結果</th></tr><tr><td>'+fmt(q.prev,q.ind)+'</td><td>'+fmt(q.fc,q.ind)+'</td><td class="res">'+fmt(q.res,q.ind)+'</td></tr></table>';
+  }
+  $('stage').classList.remove('hidden');
+  $('girl').src='hawk_dove_assets/girl_normal.png';$('girl').classList.remove('pop');
+  $('ask').classList.remove('hidden');$('say').classList.add('hidden');
+  $('aboutBox').textContent=ABOUT[q.ind.id];
+  $('aboutBox').classList.add('hidden');
+  $('choices').classList.remove('hidden');
+  $('fb').classList.add('hidden');
+}
+
+function answer(a){
+  const q=qs[qi],ok=(a==='hawk')===q.hawk;
+  const stats=store.get('hdStats',{});
+  const s=stats[q.ind.id]||{r:0,w:0};
+  ok?s.r++:s.w++;stats[q.ind.id]=s;store.set('hdStats',stats);
+  if(ok)score++;else wrongs.push(q.ind);
+  $('choices').classList.add('hidden');$('ask').classList.add('hidden');
+  $('sheetGirl').src='hawk_dove_assets/girl_'+(ok?'maru':'batsu')+'.png';$('stage').classList.add('hidden');
+  $('girl').src='hawk_dove_assets/girl_'+(ok?'maru':'batsu')+'.png';
+  $('girl').classList.remove('pop');void $('girl').offsetWidth;$('girl').classList.add('pop');
+  $('say').className='say chalk '+(ok?'ok':'ng');
+  $('say').textContent=ok?'せいかい！やったね✨':'おしい…！解説を見てみよう';
+  const label=q.hawk?'タカ派':'ハト派';
+  $('fbVerdict').className='verdict '+(ok?'ok':'ng');
+  $('fbVerdict').textContent=(ok?'⭕ 正解！ ':'❌ 残念… ')+'答えは '+label;
+  $('fbWhy').textContent=q.why;
+  $('fbImp').innerHTML=impacts(q.reg,q.hawk).map(t=>'<li>'+t+'</li>').join('');
+  $('scoreNow').textContent='正解 '+score;
+  $('nextBtn').textContent=qi===9?'結果を見る':'次の問題へ';
+  $('fb').classList.remove('hidden');
+  document.body.classList.add('sheet-open');
+}
+
+function next(){
+  if(qi<9){qi++;renderQ();window.scrollTo(0,0)}else finish();
+}
+
+function finish(){
+  const tot=store.get('hdTotal',{r:0,n:0});
+  tot.r+=score;tot.n+=10;store.set('hdTotal',tot);
+  if(score>store.get('hdBest',0))store.set('hdBest',score);
+  $('endScore').textContent=score+' / 10';
+  $('endRank').textContent=score>=9?'🏆 タカハトの達人':score>=7?'🥈 タカハトの読み手':score>=5?'🥉 タカハトの見習い':'🌱 タカハトのたまご';
+  const seen={};
+  const w=wrongs.filter(i=>!seen[i.id]&&(seen[i.id]=1));
+  $('endWeak').innerHTML=w.length?'<p class="small">今回間違えた指標（次は多めに出ます）</p>'+w.map(i=>'<span>'+i.grp+'</span>').join(''):'<p class="small">全問正解！すばらしい✨</p>';
+  $('endGirl').src='hawk_dove_assets/girl_'+(score>=7?'maru':'normal')+'.png';
+  show('end');window.scrollTo(0,0);
+}
+
+$('startBtn').onclick=start;
+$('againBtn').onclick=start;
+$('quitBtn').onclick=()=>{renderTitle();$('stats').insertAdjacentHTML('afterbegin','<b>おつかれさまでした！また遊んでね🌸</b><br>');window.scrollTo(0,0)};
+$('nextBtn').onclick=next;
+$('impBtn').onclick=()=>{const h=$('impBox').classList.toggle('hidden');$('impBtn').textContent=h?'📊 影響を見る':'▲ 影響を閉じる'};
+$('aboutBtn').onclick=()=>$('aboutBox').classList.toggle('hidden');
+$('choices').addEventListener('click',e=>{const b=e.target.closest('button');if(b)answer(b.dataset.a)});
+$('resetBtn').onclick=()=>{if(confirm('記録をリセットしますか？')){['hdStats','hdBest','hdTotal'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});renderTitle()}};
+['girl_normal','girl_maru','girl_batsu','taka'].forEach(n=>{new Image().src='hawk_dove_assets/'+n+'.png'});
+renderTitle();
+</script>
+</body>
+</html>
